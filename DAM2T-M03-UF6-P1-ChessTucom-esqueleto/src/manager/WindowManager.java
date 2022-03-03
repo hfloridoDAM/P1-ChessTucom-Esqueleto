@@ -1,33 +1,24 @@
 package manager;
-
-import javax.swing.*;
-
-import dao.FileManager;
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
 
-import graphics.ConsolePanel;
-import graphics.LogginPanel;
+import dao.FileManager;
 import graphics.MainFrame;
-import graphics.MenuPanel;
 import graphics.ui.PreferencesPanel;
 import graphics.util.GameModel;
 import graphics.util.Preferences;
-import model.Puntuacion;
 
 public class WindowManager {
 	private static WindowManager instance;
-	private static JSplitPane splitPane;
 	private static MainFrame frame;
-	private static ConsolePanel console;
-	private static PreferencesPanel tetris;
+	private static PreferencesPanel chess;
 	private static FileManager fileManager;
     private static PreferencesPanel preferencesFrame;
     private static boolean inGame;
     private static GameModel gameModel;
     private static Preferences preferences;
+    
+    //TODO: aquí van las variables globales necesarias
 	
 	public static WindowManager getInstance() {
 		if (instance == null) {
@@ -37,118 +28,67 @@ public class WindowManager {
 	}
 	
 	private WindowManager () {
+		//TODO: Este file manager te permitirá manipular ficheros de usu/pass y de inicio de sesiones
 		fileManager = new FileManager();
-		console = new ConsolePanel();
 		frame = new MainFrame();
 		frame.setVisible(true);
+		//TODO: inicializa todo lo necesario
 	}
-	
-    public static Preferences getPreferences() {
-        return preferences;
-    }
 
-    public static PreferencesPanel getPreferencesFrame() {
-        return preferencesFrame;
-    }
-    
-    public static boolean isInGame() {
-        return inGame;
-    }
-    
+	//Método necesario para el ajedrez
     public static void startGame() {
         inGame = true;
         gameModel = new GameModel();
     }
+	
+	//Método necesario para el ajedrez
+    public static Preferences getPreferences() {
+        return preferences;
+    }
 
-	public void inicialPanel() {
-		splitPane = frame.getSplitPane();
-		LogginPanel loggin = new LogginPanel();
-		loggin.getButton().addActionListener(new ActionListener() {
+    //Método necesario para el ajedrez
+    public static PreferencesPanel getPreferencesFrame() {
+        return preferencesFrame;
+    }
+    
+    //Método necesario para el ajedrez
+    public static boolean isInGame() {
+        return inGame;
+    }
+    
+    public void inicialPanel() {
+		//TODO: aplicar lógica del loggin.
+    	//TODO: se necesita de una FileManager para leer los usuarios/pass de fichero para verificar
+    	frame.getBtnTestChess().addActionListener(new ActionListener() {
+    		public void actionPerformed(ActionEvent arg0) {
+    			launchChess();
+    		}
+    	});
+    	frame.getBtnCloseChess().addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				if (!buttonClicked(loggin.getUser(), loggin.getPassword())) 
-					loggin.printText("Usuario Incorrecto");
-				else {
-					console.addtext("Usuario correcto");
-					MenuPanel();
-				}
-			}
-		});
-		loggin.getSalirButton().addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				System.exit(0);
-			}
-		});
-		setPanels(loggin, new JPanel(), 1000, 0);
-	}
-	
-	private void setPanels(JPanel panelL, JPanel panelR, int div, int tam) {
-		splitPane.setRightComponent(panelR);
-		splitPane.setLeftComponent(panelL);
-		splitPane.setDividerLocation(div);
-		splitPane.setDividerSize(tam);
-		splitPane.validate();
-	}
-	
-	private void MenuPanel() {
-		console.addtext("PANEL: Manu");
-		ArrayList<Puntuacion> puntuaciones = fileManager.getPuntuaciones();
-		MenuPanel nw = new MenuPanel();
-		nw.setPuntuaciones(puntuaciones);
-		setButtonFunctionality(nw);
-		nw.getNuevaPartida().setVisible(true);
-		nw.getFinPartida().setVisible(false);
-		nw.getClose().setVisible(true);
-		setPanels(nw, console, 700, 11);
-	}
-	
-	private void setButtonFunctionality(MenuPanel nw) {
-		nw.getNuevaPartida().addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				nuevaPartidaButton(nw);
-			}
-		});
-		nw.getFinPartida().addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				finalizarPartidaButton(nw);
-			}
-		});
-		nw.getClose().addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				console.addtext("FIN");
-				System.exit(0);
-			}
-		});
-		nw.getLoggOut().addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				console.reset();
-				inicialPanel();
+				finalizarPartidaButton();
 			}
 		});
 	}
+    
+    
+    
+    //TODO: Aquí van las funciones necesarias
+    //Recuerda que se necesita aplicar funcinalidad a los botones en esta sección
 	
-	private void finalizarPartidaButton(MenuPanel nw) {
-		console.addtext("---> FIN PARTIDA <---");
-		tetris.endChess();
+    
+    
+    
+    //TODO: este método cierra el JDialog del ajedrez
+	private void finalizarPartidaButton() {
+		chess.endChess();
 		gameModel.getGameFrame().setVisible(false);
-		MenuPanel();
 	}
 	
-	private void nuevaPartidaButton(MenuPanel nw) {
-		tetris = launch();
-		setPanels(nw, tetris, 700, 1);
-		nw.getNuevaPartida().setVisible(false);
-		nw.getFinPartida().setVisible(true);
-		nw.getClose().setVisible(false);
-		console.addtext("---> NUEVA PARTIDA <---");
-	}
-	
-	public PreferencesPanel launch() {
+	//TODO: este método inicializa el JDialog del chess
+	public void launchChess() {
         inGame = false;
         preferences = new Preferences();
-        return new PreferencesPanel();
+        chess = new PreferencesPanel();
     }
-	
-	private boolean buttonClicked (JTextField textField, JPasswordField passwordField) {
-		return fileManager.checkUser(textField.getText(), passwordField.getText());
-	}
 }
